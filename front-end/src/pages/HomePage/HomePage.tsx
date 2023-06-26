@@ -1,60 +1,33 @@
-import { Box, Button, TextField } from '@mui/material'
-import axios from 'axios'
-import { useState } from 'react'
+import React, { useState, ChangeEvent } from 'react'
+import TextInput from '../../components/TextInput/TextInput'
+import SummaryOutput from '../../components/SummaryOutput/SummaryOutput'
+import { summarizeText } from '../../services/api'
 
-const HomePage = () => {
+const Home: React.FC = () => {
   const [text, setText] = useState('')
+  const [summary, setSummary] = useState('')
 
-  //   useEffect(() => {
+  const handleTextChange = (event: ChangeEvent<HTMLTextAreaElement>) => {
+    setText(event.target.value)
+  }
 
-  //   }, [])
+  const handleSummarize = async () => {
+    try {
+      const response = await summarizeText(text)
+      setSummary(response.data.summary)
+    } catch (error) {
+      console.error('Error:', error)
+    }
+  }
+
   return (
-    <Box>
-      <Box className='df aic'>
-        <TextField
-          fullWidth
-          size='small'
-          variant='outlined'
-          multiline
-          value={text}
-          onChange={(event) => {
-            setText(event.target.value)
-          }}
-          placeholder={'Nhập đoạn văn...'}
-          sx={{
-            height: 40,
-            fontSize: '1rem',
-            fontWeight: 400,
-            '*:focus': {
-              boxShadow: 'none',
-              WebkitBoxShadow: 'none'
-            }
-          }}
-        />
-        <Button
-          color='primary'
-          variant='contained'
-          onClick={async () => {
-            try {
-              const response = await axios({
-                method: 'post',
-                url: 'http://127.0.0.1:8000/api/predict',
-                data: { content: 'abc' }
-              })
-
-              console.log(response.data)
-            } catch (error) {
-              console.log(error)
-            } finally {
-              console.log(1)
-            }
-          }}
-        >
-          Send
-        </Button>
-      </Box>
-    </Box>
+    <div className='home'>
+      <h2>Tóm tắt văn bản</h2>
+      <TextInput value={text} onChange={handleTextChange} />
+      <button onClick={handleSummarize}>Tóm tắt</button>
+      {summary && <SummaryOutput summary={summary} />}
+    </div>
   )
 }
 
-export default HomePage
+export default Home
