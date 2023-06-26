@@ -11,7 +11,7 @@ def summarize():
     data = request.get_json()
     text = data['text']
     summary = summarizer(text)
-    return jsonify({'summary': summary})
+    return jsonify({'summary': summary[0]['summary_text']})
 
 
 if __name__ == '__main__':
