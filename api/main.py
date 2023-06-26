@@ -1,20 +1,31 @@
-from flask import Flask, request
+from flask import Flask, request, url_for, redirect, render_template
+import pickle
+import numpy as np
+
 app = Flask(__name__)
 
-
-@app.route("/")
-def home():
-    return "HELLO from vercel use flask"
+model = pickle.load(open('model.pkl', 'rb'))
 
 
-@app.route('/example', methods=['POST'])
-def example():
-    if request.method == 'POST':
-        data = request.form['data']
-        print(data)
-        return f"The data you sent is: {data}"
+@app.route('/')
+def hello_world():
+    return render_template("forest_fire.html")
 
 
-@app.route("/about")
-def about():
-    return "HELLO about"
+@app.route('/predict', methods=['POST', 'GET'])
+def predict():
+    int_features = [int(x) for x in request.form.values()]
+    final = [np.array(int_features)]
+    print(int_features)
+    print(final)
+    prediction = model.predict_proba(final)
+    output = '{0:.{1}f}'.format(prediction[0][1], 2)
+
+    if output > str(0.5):
+        return render_template('forest_fire.html', pred='Your Forest is in Danger.\nProbability of fire occuring is {}'.format(output), bhai="kuch karna hain iska ab?")
+    else:
+        return render_template('forest_fire.html', pred='Your Forest is safe.\n Probability of fire occuring is {}'.format(output), bhai="Your Forest is Safe for now")
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
