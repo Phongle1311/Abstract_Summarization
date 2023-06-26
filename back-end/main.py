@@ -18,6 +18,7 @@
 #     app.run(debug=True)
 
 from flask import Flask, request, render_template
+from transformers import pipeline
 app = Flask(__name__)
 
 
